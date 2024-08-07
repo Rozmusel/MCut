@@ -74,8 +74,6 @@ void menu(void) {
 		CUTS = 3
 	} mode;
 
-	int choice = 0;
-
 	print_color(
 		"[1] => Прочитать карту\n"
 		"[2] => Прочитать контур\n"
@@ -86,6 +84,7 @@ void menu(void) {
 		WHITE
 	);
 
+	char input[256];
 	while (1) {
 		print_color(
 			"\033[26;4H"
@@ -93,14 +92,15 @@ void menu(void) {
 			WHITE
 		);
 
-		scanf_s("%d", &choice);
-
+		if (scanf_s("%s", &input, 256) != 1) printf("ERROR");
+		int choice = atoi(input);
+		
 		print_color(
 			"\033[28;0H"
 			"\33[K",
 			WHITE
 		);
-
+		
 		switch (choice) {
 		case POINTS:
 			if (map()) {
