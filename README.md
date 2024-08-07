@@ -1,4 +1,4 @@
-# MCut - Программа для обрезки карт высот по контуру
+# MCut
 ![MCut logo](https://github.com/user-attachments/assets/5285a188-b1d1-46d5-8ebc-f288247cd6a4)
 
 
