@@ -23,12 +23,14 @@ int map(void);
 int contour(void);
 int cut(void);
 
-void print_color(char* text, color c);
+void print_color(HANDLE hConsole, char* text, color c);
 
 
 int main(void) {
+	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+
 	if (setlocale(LC_ALL, "ru") == NULL) {
-		print_color("ERROR SET LOCALE", WHITE);
+		print_color(hConsole, "ERROR SET LOCALE", WHITE);
 		return -1;
 	}
 
@@ -40,6 +42,7 @@ int main(void) {
 	color b1 = WHITE, b2 = WHITE, b3 = WHITE;
 
 	print_color(
+		hConsole,
 		"                 @@@@@     @@@@@					\n"
 		" @@@@@@@@@@@@@   @@@@@@@ @@@@@@@@    @@@@@@@@@@@@	\n"
 		"@@@@@@@@@@@@@@  @@@@@@@@@@@@@@@@@    @@@@@@@@@@@@	\n"
@@ -68,6 +71,8 @@ int main(void) {
 }
 
 void menu(void) {
+	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+
 	typedef enum {
 		POINTS = 1,
 		VECTORS = 2,
@@ -75,6 +80,7 @@ void menu(void) {
 	} mode;
 
 	print_color(
+		hConsole,
 		"[1] => Прочитать карту\n"
 		"[2] => Прочитать контур\n"
 		"[3] => Обрезать карту\n"
@@ -87,15 +93,17 @@ void menu(void) {
 	char input[256];
 	while (1) {
 		print_color(
+			hConsole,
 			"\033[26;4H"
 			"\33[K",
 			WHITE
 		);
 
-		if (scanf_s("%s", &input, 256) != 1) printf("ERROR");
-		int choice = atoi(input);
+		int choice = -1;
+		if (scanf_s("%s", &input, 256) == 1) choice = atoi(input);
 		
 		print_color(
+			hConsole,
 			"\033[28;0H"
 			"\33[K",
 			WHITE
@@ -105,6 +113,7 @@ void menu(void) {
 		case POINTS:
 			if (map()) {
 				print_color(
+					hConsole,
 					"Файл был успешно прочитан"
 					"\033[23;8H"
 					"Прочитать карту",
@@ -112,6 +121,7 @@ void menu(void) {
 				);
 			} else {
 				print_color(
+					hConsole,
 					"Файл не был найден"
 					"\033[23;8H"
 					"Прочитать карту",
@@ -123,6 +133,7 @@ void menu(void) {
 		case VECTORS:
 			if (contour()) {
 				print_color(
+					hConsole,
 					"Файл был успешно прочитан"
 					"\033[24;8H"
 					"Прочитать контур",
@@ -131,6 +142,7 @@ void menu(void) {
 			}
 			else {
 				print_color(
+					hConsole,
 					"Файл не был найден"
 					"\033[24;8H"
 					"Прочитать контур",
@@ -140,11 +152,12 @@ void menu(void) {
 			break;
 
 		case CUTS:
-			print_color("Смена окна", WHITE);
+			print_color(hConsole, "Смена окна", WHITE);
 			break;
 
 		default:
 			print_color(
+				hConsole,
 				"                НЕИЗВЕСТНЫЙ РЕЖИМ",
 				DARK_RED
 			);
@@ -168,8 +181,7 @@ int cut(void) {
 }
 
 
-void print_color(char* text, color c) {
-	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+void print_color(HANDLE hConsole, char* text, color c) {
 	SetConsoleTextAttribute(hConsole, c);
 	printf(text);
 }
