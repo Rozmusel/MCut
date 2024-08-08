@@ -16,6 +16,10 @@ typedef enum {
 	GRAY = 8
 } color;
 
+FILE* Vectors = NULL;
+FILE* Points = NULL;
+FILE* Output = NULL;
+errno_t read_res = NULL;	// Хранение результата открытия файла
 
 void menu(void);
 
@@ -34,10 +38,6 @@ int main(void) {
 		return -1;
 	}
 
-	FILE* Vectors = NULL;
-	FILE* Points = NULL;
-	FILE* Output = NULL;
-	errno_t read_res = NULL;	// Хранение результата открытия файла
 
 	color b1 = WHITE, b2 = WHITE, b3 = WHITE;
 
@@ -90,6 +90,7 @@ void menu(void) {
 		WHITE
 	);
 
+	int fl_points = 0, fl_vectors = 0;
 	char input[256];
 	while (1) {
 		print_color(
@@ -120,6 +121,7 @@ void menu(void) {
 					"Прочитать карту",
 					GREEN
 				);
+				fl_points = 1;
 			} else {
 				print_color(
 					hConsole,
@@ -140,8 +142,8 @@ void menu(void) {
 					"Прочитать контур",
 					GREEN
 				);
-			}
-			else {
+				fl_vectors = 1;
+			} else {
 				print_color(
 					hConsole,
 					"Файл не был найден"
@@ -153,7 +155,18 @@ void menu(void) {
 			break;
 
 		case CUTS:
-			print_color(hConsole, "Смена окна", WHITE);
+			if (fl_points && fl_vectors) {
+				print_color(hConsole, "Смена окна", WHITE);
+			} else {
+				print_color(
+					hConsole,
+					"Недостаточно входных данных"
+					"\033[25;8H"
+					"Обрезать карту", 
+					DARK_RED
+				);
+			}
+			
 			break;
 
 		default:
@@ -168,11 +181,15 @@ void menu(void) {
 
 
 int map(void) {
+	read_res = fopen_s(&Points, "Points.txt", "r");
+	if (read_res != 0) return 0;
 	return 1;
 }
 
 
 int contour(void) {
+	read_res = fopen_s(&Vectors, "Contour.txt", "r");
+	if (read_res != 0) return 0;
 	return 1;
 }
 
