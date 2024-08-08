@@ -100,7 +100,8 @@ void menu(void) {
 		);
 
 		int choice = -1;
-		if (scanf_s("%s", &input, 256) == 1) choice = atoi(input);
+		for (int i = 0; (input[i] = getchar()) != '\n' && input[i] != EOF; i++) {}
+		choice = atoi(input);
 		
 		print_color(
 			hConsole,
