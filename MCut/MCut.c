@@ -1,30 +1,45 @@
 ﻿#include <stdio.h>
 #include <windows.h>
 #include <locale.h>
+
+
 #define NUMSIZE 16	// Максимальная длина считываемого числа
 #define VECSIZE 64	// Максимальное количество векторов
 #define STRSIZE 128	// Максимальная длина принимаемой строки
 
-enum colors { WHITE = 7, DARK_YELLOW = 6, GREEN = 10, DARK_RED = 4, GRAY = 8 } b1, b2, b3;
 
-void menu();
-int map();
-int contour();
-int cut();
-
-int main() {
-	FILE* Vectors;
-	FILE* Points;
-	FILE* Output;
-
-	errno_t read_res;	// Хранение результата открытия файла
-	b1 = b2 = b3 = WHITE;
+typedef enum {
+	WHITE = 7,
+	DARK_YELLOW = 6,
+	GREEN = 10,
+	DARK_RED = 4,
+	GRAY = 8
+} color;
 
 
-	setlocale(LC_ALL, "rus");
-	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-	SetConsoleTextAttribute(hConsole, DARK_YELLOW);	// Меняю цвет символов
-	printf(
+void menu(void);
+
+int map(void);
+int contour(void);
+int cut(void);
+
+void print_color(char* text, color c);
+
+
+int main(void) {
+	if (setlocale(LC_ALL, "ru") == NULL) {
+		print_color("ERROR SET LOCALE", WHITE);
+		return -1;
+	}
+
+	FILE* Vectors = NULL;
+	FILE* Points = NULL;
+	FILE* Output = NULL;
+	errno_t read_res = NULL;	// Хранение результата открытия файла
+
+	color b1 = WHITE, b2 = WHITE, b3 = WHITE;
+
+	print_color(
 		"                 @@@@@     @@@@@					\n"
 		" @@@@@@@@@@@@@   @@@@@@@ @@@@@@@@    @@@@@@@@@@@@	\n"
 		"@@@@@@@@@@@@@@  @@@@@@@@@@@@@@@@@    @@@@@@@@@@@@	\n"
@@ -45,82 +60,116 @@ int main() {
 		"@@@@@@@@@@@@@@   @@@@       @@@@         @@@@		\n"
 		" @@@@@@@@@@@@@   @@@@@@@@@@@@@@@         @@@@		\n"
 		"                 @@@@@@@@@@@@@@@					\n"
+		"\n\n",
+		DARK_YELLOW
 	);
-	printf("\n\n");
-	SetConsoleTextAttribute(hConsole, WHITE);
 
 	menu();
 }
 
-void menu() {
-	enum mode { POINTS = 1, VECTORS, CUTS };
-	int choice;
+void menu(void) {
+	typedef enum {
+		POINTS = 1,
+		VECTORS = 2,
+		CUTS = 3
+	} mode;
 
-	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+	print_color(
+		"[1] => Прочитать карту\n"
+		"[2] => Прочитать контур\n"
+		"[3] => Обрезать карту\n"
+		"<< "
+		"\n-------------------------------------------------\n"
+		"\n-------------------------------------------------\n",
+		WHITE
+	);
 
-	printf(	"[1] => Прочитать карту\n"
-			"[2] => Прочитать контур\n"
-			"[3] => Обрезать карту\n"	);
+	char input[256];
+	while (1) {
+		print_color(
+			"\033[26;4H"
+			"\33[K",
+			WHITE
+		);
 
-	printf("<< ");
-	printf(	"\n-------------------------------------------------\n"
-			"\n-------------------------------------------------\n"	);
-	for (;;) {
-		SetConsoleTextAttribute(hConsole, WHITE);
-		printf("\033[26;4H");
-		printf("\33[K");
-
-		scanf_s("%d", &choice);
-
-		printf("\033[28;0H");
-		printf("\33[K");
+		if (scanf_s("%s", &input, 256) != 1) printf("ERROR");
+		int choice = atoi(input);
+		
+		print_color(
+			"\033[28;0H"
+			"\33[K",
+			WHITE
+		);
+		
 		switch (choice) {
 		case POINTS:
 			if (map()) {
-				SetConsoleTextAttribute(hConsole, GREEN);
-				printf("Файл был успешно прочитан");
-				printf("\033[23;8H");
-				printf("Прочитать карту");
+				print_color(
+					"Файл был успешно прочитан"
+					"\033[23;8H"
+					"Прочитать карту",
+					GREEN
+				);
 			} else {
-				SetConsoleTextAttribute(hConsole, DARK_RED);
-				printf("Файл не был найден");
-				printf("\033[23;8H");
-				printf("Прочитать карту");
+				print_color(
+					"Файл не был найден"
+					"\033[23;8H"
+					"Прочитать карту",
+					DARK_RED
+				);
 			}
 			break;
+
 		case VECTORS:
 			if (contour()) {
-				SetConsoleTextAttribute(hConsole, GREEN);
-				printf("Файл был успешно прочитан");
-				printf("\033[24;8H");
-				printf("Прочитать контур");
+				print_color(
+					"Файл был успешно прочитан"
+					"\033[24;8H"
+					"Прочитать контур",
+					GREEN
+				);
 			}
 			else {
-				SetConsoleTextAttribute(hConsole, DARK_RED);
-				printf("Файл не был найден");
-				printf("\033[24;8H");
-				printf("Прочитать контур");
+				print_color(
+					"Файл не был найден"
+					"\033[24;8H"
+					"Прочитать контур",
+					DARK_RED
+				);
 			}
 			break;
+
 		case CUTS:
-			printf("Смена окна");
+			print_color("Смена окна", WHITE);
 			break;
+
 		default:
-			SetConsoleTextAttribute(hConsole, DARK_RED);
-			printf("                НЕИЗВЕСТНЫЙ РЕЖИМ");
-
+			print_color(
+				"                НЕИЗВЕСТНЫЙ РЕЖИМ",
+				DARK_RED
+			);
 		}
-
 	}
 }
 
-int map() {
+
+int map(void) {
 	return 1;
 }
 
-int contour() {
+
+int contour(void) {
 	return 1;
 }
-int cut() {
+
+
+int cut(void) {
 	return 0;
+}
+
+
+void print_color(char* text, color c) {
+	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+	SetConsoleTextAttribute(hConsole, c);
+	printf(text);
 }
